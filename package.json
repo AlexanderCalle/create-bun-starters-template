@@ -1,0 +1,28 @@
+{
+  "name": "create-bun-cli",
+  "module": "index.ts",
+  "type": "module",
+  "version": "0.0.1",
+  "bin": {
+    "create-bun-cli": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/clear": "^0.1.4",
+    "@types/figlet": "^1.7.0",
+    "@types/fs-extra": "^11.0.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.2.3",
+    "chalk": "^5.4.1",
+    "clear": "^0.1.0",
+    "commander": "^13.1.0",
+    "figlet": "^1.8.0",
+    "fs-extra": "^11.3.0",
+    "ora": "^8.1.1",
+    "sort-package-json": "^2.14.0"
+  }
+}
