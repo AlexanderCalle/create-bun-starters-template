@@ -5,6 +5,7 @@ import type { DatabaseProvider, PkgInstallerMap } from "~/installers";
 import { getUserPkgManager } from "~/utils/getUserPkgManager";
 import { scaffoldProject } from '~/helpers/scaffoldProject';
 import type { ProjectType } from '~/cli';
+import { installPackages } from './installPackages';
 
 interface CreateProjectOptions {
   projectName: string;
@@ -27,7 +28,7 @@ export const createProject = async ({
   const pkgManager = getUserPkgManager();
   const projectDir = path.resolve(process.cwd(), projectDest);
 
-  scaffoldProject({
+  await scaffoldProject({
     projectName,
     projectDir,
     pkgManager,
@@ -35,4 +36,16 @@ export const createProject = async ({
     noInstall,
     projectType
   });
+
+  installPackages({
+    projectName,
+    projectDir,
+    pkgManager,
+    packages,
+    noInstall,
+    databaseProvider,
+    projectType
+  })
+
+  return projectDir
 }

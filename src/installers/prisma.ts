@@ -27,19 +27,19 @@ export const prismaInstaller: Installer = ({
     devMode: false
   })
 
-  const extrasDir = path.join(PKG_ROOT, "template/extras");
+  const extrasDir = path.join(PKG_ROOT, "templates/extras");
 
   const schemaSrc = path.join(extrasDir, "prisma/schema", "base.prisma");
   let schemaText = fs.readFileSync(schemaSrc, "utf-8")
   if(databaseProvider !== "sqlite") {
     schemaText = schemaText.replace(
       'provider = "sqlite"',
-      `provider = ${
+      `provider = "${
         {
           mysql: "mysql",
           postgres: "postgresql",
         }[databaseProvider]
-      }`
+      }"`
     );
 
     if(["mysql"].includes(databaseProvider)) {

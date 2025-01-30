@@ -105,7 +105,7 @@ export const scaffoldProject = async ({
     )
 
     fs.renameSync(
-      path.join(projectDir, "packages/servcer", "_gitignore"),
+      path.join(projectDir, "packages/server", "_gitignore"),
       path.join(projectDir, "packages/server", ".gitignore")
     )
   }
