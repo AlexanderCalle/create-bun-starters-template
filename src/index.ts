@@ -4,6 +4,8 @@ import { buildPkgInstallerMap } from "~/installers"
 import { getUserPkgManager } from "~/utils/getUserPkgManager"
 import { logger } from "~/utils/logger"
 import { renderTitle } from "~/utils/renderTitle"
+import { createProject } from "./helpers/createProject"
+import path from "path"
 
 const main = async () => {
   const pkgManager = getUserPkgManager()
@@ -17,7 +19,21 @@ const main = async () => {
     databaseProvider,
   } = await runCli();
 
-  const usePackages = buildPkgInstallerMap
+  const usePackages = buildPkgInstallerMap(packages, databaseProvider);
+  const projectDir = path.join(dirPath, appName)
+
+  await createProject({
+    projectName: appName,
+    projectDest: projectDir,
+    noInstall,
+    databaseProvider,
+    packages: usePackages,
+    projectInfo: {
+      type,
+      backend: backendFramework,
+      frontend: frontendFramework
+    }
+  })
 
   logger.success("CLI completed:")
   logger.success(`

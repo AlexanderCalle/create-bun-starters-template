@@ -4,7 +4,7 @@ import fs from 'fs-extra'
 import type { ProjectInfo } from "~/cli";
 import type { DatabaseProvider, PkgInstallerMap } from "~/installers";
 import { getUserPkgManager } from "~/utils/getUserPkgManager";
-
+import { scaffoldProject } from '~/helpers/scaffoldProject';
 
 interface CreateProjectOptions {
   projectName: string;
@@ -27,6 +27,13 @@ export const createProject = async ({
   const pkgManager = getUserPkgManager();
   const projectDir = path.resolve(process.cwd(), projectDest);
 
-
+  scaffoldProject({
+    projectName,
+    projectDir,
+    pkgManager,
+    databaseProvider,
+    noInstall,
+    projectInfo
+  });
 
 }

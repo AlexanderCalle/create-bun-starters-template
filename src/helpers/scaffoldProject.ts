@@ -7,7 +7,6 @@ import ora from 'ora'
 import { PKG_ROOT } from '~/consts'
 import { type InstallerOptions } from '~/installers';
 import { logger } from '~/utils/logger';
-import { error } from 'console'
 
 // This bootstraps the base Fullstack | Backend | Frontend application
 export const scaffoldProject = async ({
@@ -17,7 +16,7 @@ export const scaffoldProject = async ({
   noInstall,
   projectInfo
 }: InstallerOptions) => {
-  const srcDir = path.join(PKG_ROOT, "template/bases", projectInfo.type.toLowerCase());
+  const srcDir = path.join(PKG_ROOT, "templates/bases", projectInfo.type.toLowerCase());
   
   if(!noInstall) {
     logger.info(`Using: ${chalk.cyan.bold(pkgManager)}\n`);
@@ -30,7 +29,7 @@ export const scaffoldProject = async ({
   if(fs.existsSync(projectDir)) {
     if(fs.readdirSync(projectDir).length === 0) {
       spinner.info(
-        `${chalk.cyan.bold(projectDir)} exists but is empty, contunuing...\n`
+        `${chalk.cyan.bold(projectDir)} exists but is empty, continuing...\n`
       )
     } else {
       spinner.stopAndPersist();
