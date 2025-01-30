@@ -1,17 +1,17 @@
 import path from 'path'
 import fs from 'fs-extra'
-import type { ProjectInfo } from '~/cli';
+import type { ProjectType } from '~/cli';
 
 interface CreateProjectDirOptions {
   projectName: string;
   dirPath: string;
-  projectInfo: ProjectInfo;
+  projectType: ProjectType;
 }
 
 export const createProjectDir = async ({
   projectName,
   dirPath,
-  projectInfo
+  projectType
 }: CreateProjectDirOptions): Promise<string> => {
 
   const projectDir = path.join(dirPath, projectName)

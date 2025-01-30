@@ -11,24 +11,10 @@ import { getUserPkgManager } from '../utils/getUserPkgManager';
 const types = ["Fullstack", "Backend", "Frontend"] as const
 export type ProjectType = typeof types[number]
 
-const backendFrameworks = ["Nestjs", "Express"] as const
-export type BackendFramework = typeof backendFrameworks[number]
-
-const frontendFrameworks = ["Nextjs", "Vite"] as const
-export type FrontendFramework = typeof frontendFrameworks[number];
-
-export interface ProjectInfo {
-  type: ProjectType;
-  frontend?: FrontendFramework;
-  backend?: BackendFramework;
-}
-
 // TODO: add support to add ShadCn
 
 interface ProjectPrompts {
   type: ProjectType;
-  backendFramework?: BackendFramework;
-  frontendFramework?: FrontendFramework
   styling: boolean;
   prisma: boolean;
   dbProvider: DatabaseProvider;
@@ -40,8 +26,6 @@ interface CliFlags {
   default: boolean;
   noInstall: boolean;
   dbProvider: DatabaseProvider;
-  backendFramework?: BackendFramework;
-  frontendFramework?: FrontendFramework;
 }
 
 interface CliResults {
@@ -61,8 +45,6 @@ const defaultOptions: CliResults = {
     default: false,
     noInstall: false,
     dbProvider: 'postgres',
-    backendFramework: 'Nestjs',
-    frontendFramework: 'Nextjs'
   },
   databaseProvider: 'postgres'
 }
@@ -115,9 +97,7 @@ export const runCli = async (): Promise<CliResults> => {
 
     let project: ProjectPrompts = {
       type: defaultOptions.flags.type,
-      backendFramework: undefined,
-      frontendFramework: undefined,
-      styling: true,
+      styling: false,
       prisma: true,
       install: !defaultOptions.flags.noInstall,
       dbProvider: defaultOptions.flags.dbProvider
@@ -128,23 +108,11 @@ export const runCli = async (): Promise<CliResults> => {
       choices: types
     })
 
-    if(project.type === 'Fullstack' || project.type === 'Backend') {
-      project.backendFramework = await p.select<BackendFramework>({
-        message: "Which backend framework do you want to use?",
-        choices: backendFrameworks,
+    if(project.type === "Frontend" || project.type === "Fullstack") {
+      project.styling = await p.confirm({
+        message: "Do you want to use tailwind?",
       })
     }
-
-    if(project.type === 'Frontend' || project.type === 'Fullstack') {
-      project.frontendFramework = await p.select({
-        message: "Wich frontend framework do you want to use?",
-        choices: frontendFrameworks
-      })
-    }
-
-    project.styling = await p.confirm({
-      message: "Do you want to use tailwind?",
-    })
 
     project.prisma = await p.confirm({
       message: "Do you want to use Prisma?"
@@ -176,8 +144,6 @@ export const runCli = async (): Promise<CliResults> => {
       flags: {
         ...cliResults.flags,
         type: project.type,
-        backendFramework: project.backendFramework,
-        frontendFramework: project.frontendFramework,
         dbProvider: project.dbProvider,
         noInstall: !project.install || cliResults.flags.noInstall
       } 

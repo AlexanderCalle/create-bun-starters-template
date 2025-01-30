@@ -7,10 +7,14 @@ import { addPackageDependency } from '~/utils/addPackageDependency'
 import type { Installer } from '~/installers'
 
 export const prismaInstaller: Installer = ({
-  projectDir,
-  packages,
-  databaseProvider
+  projectDir: _baseDir,
+  databaseProvider,
+  projectType
 }) => {
+  const projectDir = projectType === "Fullstack"
+    ? path.join(_baseDir, "packages/server")
+    : _baseDir;
+
   addPackageDependency({
     projectDir,
     dependencies: ["prisma"],
@@ -47,13 +51,14 @@ export const prismaInstaller: Installer = ({
   fs.mkdirSync(path.dirname(schemaDest), { recursive: true });
   fs.writeFileSync(schemaDest, schemaText);
 
-  //BUG: needs checking first Wich type of project (if there is a frontend) 
-
-  const clientSrc = path.join(
+  if (projectType === "Frontend") {
+    const clientSrc = path.join(
     extrasDir,
-    "src/server/db/db-prisma.ts"
-  );
-  const clientDest = path.join(projectDir, 'src/server/db.ts');
+      "src/server/db/db-prisma.ts"
+    );
+    const clientDest = path.join(projectDir, 'server/db.ts');
+    fs.copySync(clientSrc, clientDest);
+  }
 
   const packageJsonPath = path.join(projectDir, "package.json");
 
@@ -67,6 +72,5 @@ export const prismaInstaller: Installer = ({
     "db:migrate": "prisma migrate deploy",
   };
 
-  fs.copySync(clientSrc, clientDest);
   fs.writeJSONSync(packageJsonPath, packageJsonContent, { spaces: 2 });
 };

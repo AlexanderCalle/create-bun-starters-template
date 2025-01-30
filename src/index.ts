@@ -15,7 +15,7 @@ const main = async () => {
     appName,
     dirPath,
     packages,
-    flags: { noInstall, dbProvider, type, backendFramework, frontendFramework },
+    flags: { noInstall, dbProvider, type },
     databaseProvider,
   } = await runCli();
 
@@ -28,11 +28,7 @@ const main = async () => {
     noInstall,
     databaseProvider,
     packages: usePackages,
-    projectInfo: {
-      type,
-      backend: backendFramework,
-      frontend: frontendFramework
-    }
+    projectType: type,
   })
 
   logger.success("CLI completed:")
@@ -44,8 +40,6 @@ const main = async () => {
     \t noInstall = ${noInstall ? "yes" : "no"}
     \t database provider = ${dbProvider}
     \t project type = ${type}
-    \t backend framework = ${backendFramework ?? "no framework"}
-    \t frontend framework = ${frontendFramework ?? "no framework"}
     database provider = ${databaseProvider}
     `)
 }

@@ -3,7 +3,7 @@ import { prismaInstaller } from "./prisma";
 import { tailwindInstaller } from "./tailwind";
 import { envVariablesInstaller } from "./envVars";
 import { dynamicEslintInstaller } from "./eslint";
-import type { ProjectInfo, ProjectType } from "~/cli";
+import type { ProjectType } from "~/cli";
 
 export const availablePackages = [
   "prisma",
@@ -28,7 +28,7 @@ export interface InstallerOptions {
   packages?: PkgInstallerMap;
   projectName: string;
   databaseProvider: DatabaseProvider;
-  projectInfo: ProjectInfo;
+  projectType: ProjectType;
 }
 
 export type Installer = (opts: InstallerOptions) => void;

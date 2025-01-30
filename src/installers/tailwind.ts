@@ -6,7 +6,13 @@ import { PKG_ROOT } from '~/consts';
 import { type Installer } from '~/installers/index'
 import { addPackageDependency } from '~/utils/addPackageDependency';
 
-export const tailwindInstaller: Installer = ({ projectDir }) => {
+export const tailwindInstaller: Installer = ({ projectDir: _baseDir, projectType }) => {
+
+  // Check if project type is fullstack or frontend for projectDir
+  const projectDir = projectType === "Fullstack"
+    ? path.join(_baseDir, "packages/client")
+    : _baseDir;
+
   addPackageDependency({
     projectDir,
     dependencies: [
@@ -30,7 +36,7 @@ export const tailwindInstaller: Installer = ({ projectDir }) => {
   const prettierDest = path.join(projectDir, "prettier.config.js");
 
   const cssSrc = path.join(extrasDir, "src/styles/globals.css");
-  const cssDest = path.join(projectDir, "src/styles/globals.css");
+  const cssDest = path.join(projectDir, "app/globals.css");
 
   // INFO: Add format:* scripts to package.json
   const packageJsonPath = path.join(projectDir, "package.json");

@@ -1,63 +1,102 @@
-import crypto from 'node:crypto'
 import path from 'path'
 import fs from 'fs-extra'
 
 import { PKG_ROOT } from '~/consts'
 import { type DatabaseProvider, type Installer } from '~/installers/index'
+import type { ProjectType } from '~/cli'
 
 export const envVariablesInstaller: Installer = ({
   projectDir,
   packages,
   databaseProvider,
-  projectName
+  projectName,
+  projectType
 }) => {
   const usingPrisma = packages?.prisma.inUse;
 
-  const envContent = getEnvContent(
+  const envContent = projectType === "Fullstack"
+  ? getFullEnvContent(
+      !!usingPrisma,
+      databaseProvider,
+      projectName,
+    )
+  : getEnvContent(
     !!usingPrisma,
     databaseProvider,
-    projectName
+    projectName,
+    projectType
   );
 
-  // BUG: this is only the env file for the frontend part
-  // FIXME: make env file for the db as well
   let envFile = "";
-  // TODO: extra check if backend or frontend needed...
   if (usingPrisma) {
     // INFO: file for frontend env variables
     envFile = "with-db.js"
   }
 
-  if(envFile !== "") {
+  if(envFile !== "" && (projectType !== "Backend")) {
     const envSchemaSrc = path.join(
       PKG_ROOT,
       "template/extras/src/env",
       envFile
     );
-    const envSchemaDest = path.join(projectDir, "src/env.js");
+    const _projectPath = projectType === "Fullstack"
+      ? path.join(projectDir, "packages/client")
+      : projectDir
+    const envSchemaDest = path.join(_projectPath, "src/env.js");
     fs.copyFileSync(envSchemaSrc, envSchemaDest);
   }
 
-  const envDest = path.join(projectDir, ".env");
-  const envExampleDest = path.join(projectDir, ".env.example");
-
-  const _exampleEnvContent = exampleEnvContent + envContent;
-
-  fs.writeFileSync(envDest, envContent, "utf-8");
-  fs.writeFileSync(envExampleDest, _exampleEnvContent, "utf-8");
+  if(projectType !== 'Fullstack' && typeof envContent === "string") {
+    const envDest = path.join(projectDir, ".env");
+    const envExampleDest = path.join(projectDir, ".env.example");
+  
+    const _exampleEnvContent = exampleEnvContent + envContent;
+  
+    fs.writeFileSync(envDest, envContent, "utf-8");
+    fs.writeFileSync(envExampleDest, _exampleEnvContent, "utf-8");
+  } else if(Array.isArray(envContent)) {
+    let i = 0;
+    for(const dir in ["packages/client", "packages/server"]) {
+      const _projectPath = path.join(projectDir, dir)
+      const envDest = path.join(_projectPath, ".env");
+      const envExampleDest = path.join(_projectPath, ".env.example");
+    
+      const _exampleEnvContent = exampleEnvContent + envContent[0];
+    
+      fs.writeFileSync(envDest, envContent[i], "utf-8");
+      fs.writeFileSync(envExampleDest, _exampleEnvContent, "utf-8");
+      i++;
+    }
+  }
 };
+
+const getFullEnvContent = (
+  usingPrisma: boolean,
+  databaseProvider: DatabaseProvider,
+  appName: string,
+): [string, string] => {
+  const contentFront = getEnvContent(usingPrisma, databaseProvider, appName, "Frontend")
+  const contentBack = getEnvContent(usingPrisma, databaseProvider, appName, "Backend")
+
+  return [contentFront, contentBack]
+}
 
 const getEnvContent = (
   usingPrisma: boolean,
   databaseProvider: DatabaseProvider,
-  appName: string
+  appName: string,
+  projectType: ProjectType
 ) => {
-  let content = `
+
+
+  let content = projectType !== "Backend" ? `
 # When adding additional environment variables, the schema in "/src/env.js"
 # should be updated accordingly.
-  `
-  .trim()
-  .concat("\n")
+  ` : "";
+
+  content
+    .trim()
+    .concat("\n")
 
   if(usingPrisma) {
     content += `
@@ -71,6 +110,14 @@ const getEnvContent = (
     } else if(databaseProvider === 'sqlite') {
       content += 'DATABASE_URL="file:./db.sqlite"';
     }
+    content += "\n"
+  }
+
+  if(projectType === "Frontend") {
+    content += `
+# Backend Api url
+NEXT_CLIENT_API_URL = http://localhost:3000
+    `
     content += "\n"
   }
 

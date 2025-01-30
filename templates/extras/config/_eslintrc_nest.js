@@ -1,4 +1,5 @@
-module.exports = {
+/** @type {import("eslint").Linter.Config} */
+export const _initialConfigNest = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: 'tsconfig.json',

@@ -14,9 +14,9 @@ export const scaffoldProject = async ({
   projectDir,
   pkgManager,
   noInstall,
-  projectInfo
+  projectType
 }: InstallerOptions) => {
-  const srcDir = path.join(PKG_ROOT, "templates/bases", projectInfo.type.toLowerCase());
+  const srcDir = path.join(PKG_ROOT, "templates/bases", projectType.toLowerCase());
   
   if(!noInstall) {
     logger.info(`Using: ${chalk.cyan.bold(pkgManager)}\n`);
@@ -91,13 +91,24 @@ export const scaffoldProject = async ({
 
   spinner.start();
 
-  // FIXME: Needs updating to select specific framework
-  // Do we need the frameworks tho?? we can just select one (Nestjs and Nextjs)
   fs.copySync(srcDir, projectDir);
   fs.renameSync(
     path.join(projectDir, '_gitignore'),
     path.join(projectDir, '.gitignore')
   );
+
+  // Rename packages gitignore's
+  if(projectType === "Fullstack") {
+    fs.renameSync(
+      path.join(projectDir, "packages/client", "_gitignore"),
+      path.join(projectDir, "packages/client", ".gitignore")
+    )
+
+    fs.renameSync(
+      path.join(projectDir, "packages/servcer", "_gitignore"),
+      path.join(projectDir, "packages/server", ".gitignore")
+    )
+  }
 
   spinner.succeed(
     `${chalk.cyan.bold(projectName)} ${chalk.green("scaffolded successfully!")}\n`
