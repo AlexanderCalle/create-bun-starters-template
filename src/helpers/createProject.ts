@@ -37,7 +37,7 @@ export const createProject = async ({
     projectType
   });
 
-  installPackages({
+  await installPackages({
     projectName,
     projectDir,
     pkgManager,

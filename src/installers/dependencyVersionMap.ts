@@ -12,5 +12,6 @@ export const dependencyVersionMap = {
   postcss: "^8.4.39",
   prettier: "^3.3.2",
   "prettier-plugin-tailwindcss": "^0.6.5",
+  "@t3-oss/env-nextjs": "^0.12.0",
 } as const;
 export type AvailableDependencies = keyof typeof dependencyVersionMap;

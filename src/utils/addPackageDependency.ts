@@ -15,7 +15,7 @@ export const addPackageDependency = (opts: {
 }) => {
   const { dependencies, devMode, projectDir } = opts
 
-  const pkgJson = fs.readFileSync(
+  const pkgJson = fs.readJSONSync(
     path.join(projectDir, "package.json")
   ) as PackageJson
 

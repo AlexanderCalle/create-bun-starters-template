@@ -4,6 +4,7 @@ import fs from 'fs-extra'
 import { PKG_ROOT } from '~/consts'
 import { type DatabaseProvider, type Installer } from '~/installers/index'
 import type { ProjectType } from '~/cli'
+import { addPackageDependency } from '~/utils/addPackageDependency'
 
 export const envVariablesInstaller: Installer = ({
   projectDir,
@@ -36,13 +37,20 @@ export const envVariablesInstaller: Installer = ({
   if(envFile !== "" && (projectType !== "Backend")) {
     const envSchemaSrc = path.join(
       PKG_ROOT,
-      "template/extras/src/env",
+      "templates/extras/src/env",
       envFile
     );
+
+    addPackageDependency({
+    projectDir,
+    dependencies: ["@t3-oss/env-nextjs"],
+    devMode: true
+  })
+
     const _projectPath = projectType === "Fullstack"
       ? path.join(projectDir, "packages/client")
       : projectDir
-    const envSchemaDest = path.join(_projectPath, "src/env.js");
+    const envSchemaDest = path.join(_projectPath, "env.js");
     fs.copyFileSync(envSchemaSrc, envSchemaDest);
   }
 
@@ -56,7 +64,7 @@ export const envVariablesInstaller: Installer = ({
     fs.writeFileSync(envExampleDest, _exampleEnvContent, "utf-8");
   } else if(Array.isArray(envContent)) {
     let i = 0;
-    for(const dir in ["packages/client", "packages/server"]) {
+    ["packages/client", "packages/server"].forEach((dir) => {
       const _projectPath = path.join(projectDir, dir)
       const envDest = path.join(_projectPath, ".env");
       const envExampleDest = path.join(_projectPath, ".env.example");
@@ -66,7 +74,7 @@ export const envVariablesInstaller: Installer = ({
       fs.writeFileSync(envDest, envContent[i], "utf-8");
       fs.writeFileSync(envExampleDest, _exampleEnvContent, "utf-8");
       i++;
-    }
+    })
   }
 };
 
@@ -75,8 +83,8 @@ const getFullEnvContent = (
   databaseProvider: DatabaseProvider,
   appName: string,
 ): [string, string] => {
-  const contentFront = getEnvContent(usingPrisma, databaseProvider, appName, "Frontend")
-  const contentBack = getEnvContent(usingPrisma, databaseProvider, appName, "Backend")
+  const contentFront = getEnvContent(usingPrisma, databaseProvider, appName, "Frontend", true)
+  const contentBack = getEnvContent(usingPrisma, databaseProvider, appName, "Backend", true)
 
   return [contentFront, contentBack]
 }
@@ -85,7 +93,8 @@ const getEnvContent = (
   usingPrisma: boolean,
   databaseProvider: DatabaseProvider,
   appName: string,
-  projectType: ProjectType
+  projectType: ProjectType,
+  isFullstack: boolean = false
 ) => {
 
 
@@ -98,7 +107,7 @@ const getEnvContent = (
     .trim()
     .concat("\n")
 
-  if(usingPrisma) {
+  if(usingPrisma && (!isFullstack || (isFullstack && projectType  === "Backend"))) {
     content += `
 # Prisma
 # https://www.prisma.io/docs/reference/database-reference/connection-urls#env
@@ -116,9 +125,14 @@ const getEnvContent = (
   if(projectType === "Frontend") {
     content += `
 # Backend Api url
-NEXT_CLIENT_API_URL = http://localhost:3000
+NEXT_CLIENT_API_URL = http://localhost:${isFullstack ? "3030" : "3000"}
     `
     content += "\n"
+  } else {
+    content += `
+# Api port
+PORT = ${isFullstack ? "3030" : "3000"}
+    `
   }
 
   return content;

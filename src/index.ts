@@ -24,7 +24,7 @@ const main = async () => {
     databaseProvider,
   } = await runCli();
 
-  const usePackages = buildPkgInstallerMap(packages, databaseProvider);
+  const usePackages = await buildPkgInstallerMap(packages, databaseProvider);
   const projectDir = path.join(dirPath, appName)
 
   await createProject({
@@ -37,10 +37,10 @@ const main = async () => {
   });
 
   // write name to package.json
-  const pkgJson = fs.readJSONSync(path.join(projectDir, "package.json")) as PackageJson;
+  const pkgJson = await fs.readJSONSync(path.join(projectDir, "package.json")) as PackageJson;
   pkgJson.name = appName;
   
-  fs.writeJSONSync(path.join(projectDir, "package.json"), pkgJson, { spaces: 2 });
+  await fs.writeJSONSync(path.join(projectDir, "package.json"), pkgJson, { spaces: 2 });
 
   // install dependecies with package manager
   if(!noInstall) {

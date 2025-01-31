@@ -58,6 +58,11 @@ export const prismaInstaller: Installer = ({
     );
     const clientDest = path.join(projectDir, 'server/db.ts');
     fs.copySync(clientSrc, clientDest);
+  } else {
+    const serviceSrc = path.join(extrasDir, "src/server/prisma");
+    const serviceDest = path.join(projectDir, "src");
+      
+    fs.copySync(serviceSrc, serviceDest);
   }
 
   const packageJsonPath = path.join(projectDir, "package.json");
